@@ -104,10 +104,17 @@ function Main {
     # Configure kdump on the VM
     $retVal = Run-LinuxCmd -username $VMUserName -password $VMPassword -ip $Ipv4 -port $VMPort `
         -command "export HOME=``pwd``;chmod u+x KDUMP-Config.sh && ./KDUMP-Config.sh" -runAsSudo
-
+    $state = Run-LinuxCmd -username $VMUserName -password $VMPassword -ip $Ipv4 -port $VMPort `
+        -command "cat state.txt" -runAsSudo
+    if (($state -eq "TestAborted") -or ($state -eq "TestFailed")) {
+        Write-LogErr "Running KDUMP-Config.sh script failed on VM!"
+        return "ABORTED"
+    } elseif ($state -eq "TestSkipped") {
+        return "SKIPPED"
+    }
     # Rebooting the VM in order to apply the kdump settings
     Run-LinuxCmd -username $VMUserName -password $VMPassword -ip $Ipv4 -port $VMPort `
-        -command "reboot" -runAsSudo -RunInBackGround
+        -command "reboot" -runAsSudo -RunInBackGround | Out-Null
     Write-LogInfo "Rebooting VM $VMName after kdump configuration..."
     Start-Sleep 10 # Wait for kvp & ssh services stop
 
@@ -132,7 +139,7 @@ function Main {
         } else {
             # If directly use plink to trigger kdump, command fails to exit, so use start-process
             Run-LinuxCmd -username  $VMUserName -password $VMPassword -ip $Ipv4 -port $VMPort `
-                -command "echo c > /proc/sysrq-trigger" -RunInBackGround -runAsSudo
+                -command "echo c > /proc/sysrq-trigger" -RunInBackGround -runAsSudo | Out-Null
         }
     }
 

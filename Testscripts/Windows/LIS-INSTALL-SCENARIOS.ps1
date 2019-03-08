@@ -426,6 +426,10 @@ Function Main {
     $currentTestResult = Create-TestResultObject
     $resultArr = @()
     try {
+        if(!@("REDHAT", "ORACLELINUX", "CENTOS").contains($global:detectedDistro)) {
+                Write-LogInfo "Skip case for UNSUPPORTED distro - $global:detectedDistr"
+                return "SKIPPED"
+        }
         $PreviousTestResult="PASS"
         foreach ($param in $CurrentTestData.TestParameters.param) {
             if ($param -imatch "LIS_TARBALL_URL_CURRENT") {

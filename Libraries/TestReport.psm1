@@ -392,20 +392,33 @@ Class TestSummary
 		}
 	}
 
+	[String] GetTestArea([string]$TestName) {
+		$files = Get-ChildItem ("$pwd\XML\TestCases\*.xml") -Exclude Other.xml
+		foreach ($fname in $files) {
+			$xml = [xml](Get-Content $fname)
+			foreach ($item in $xml.TestCases.test) {
+				if($item.testName -eq $TestName) {
+					return "$($item.Area)"
+				}
+			}
+		}
+		return "";
+	}
+
 	[void] UpdateTestSummaryForCase([string]$TestName, [int]$ExecutionCount, [string]$TestResult, [string]$Duration, [string]$TestSummary, [object]$AllVMData)
 	{
 		if ( $this.AddHeader ) {
-			$this.TextSummary += "{0,5} {1,-65} {2,20} {3,20} `r`n" -f "ID", "TestCaseName", "TestResult", "TestDuration(in minutes)"
+			$this.TextSummary += "{0,5} {1, -10} {2,-40} {3,20} {4,20} `r`n" -f "ID", "TestArea", "TestCaseName", "TestResult", "TestDuration(in minutes)"
 			$this.TextSummary += "---------------------------------------------------------------------------------------------------------------------`r`n"
 			$this.AddHeader = $false
 		}
-		$this.TextSummary += "{0,5} {1,-65} {2,20} {3,20} `r`n" -f "$ExecutionCount", "$TestName", "$TestResult", "$Duration"
+		$this.TextSummary += "{0,5} {1, -10} {2,-40} {3,20} {4,20} `r`n" -f "$ExecutionCount", "$($this.GetTestArea($TestName))", "$TestName", "$TestResult", "$Duration"
 		if ( $TestSummary ) {
 			$this.TextSummary += "$TestSummary"
 		}
 
-		$testSummaryLinePassSkip = "<tr><td>$ExecutionCount</td><td>$TestName</td><td>$Duration min</td><td>" + '{0}' + "</td></tr>"
-		$testSummaryLineFailAbort = "<tr><td>$ExecutionCount</td><td>$TestName$($this.GetReproVMDetails($AllVMData))</td><td>$Duration min</td><td>" + '{0}' + "</td></tr>"
+		$testSummaryLinePassSkip = "<tr><td>$ExecutionCount</td><td>$($this.GetTestArea($TestName))</td><td>$TestName</td><td>$Duration min</td><td>" + '{0}' + "</td></tr>"
+		$testSummaryLineFailAbort = "<tr><td>$ExecutionCount</td><td>$($this.GetTestArea($TestName))</td><td>$TestName$($this.GetReproVMDetails($AllVMData))</td><td>$Duration min</td><td>" + '{0}' + "</td></tr>"
 		if ($TestResult -imatch $global:ResultPass) {
 			$this.TotalPassTc += 1
 			$testResultRow = "<span style='color:green;font-weight:bolder'>$($global:ResultPass)</span>"

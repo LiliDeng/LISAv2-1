@@ -312,7 +312,7 @@ GetDistro
 if [[ "$OS_FAMILY" == "Debian" ]] || [[ "$OS_FAMILY" == "Sles" ]] || \
     [[ "$DISTRO" == "fedora"* ]] && [[ "$crashkernel" == "auto" ]];then
     LogErr "crashkernel=auto doesn't work for this distro. Please use this pattern: crashkernel=X@Y."
-    SetTestStateAborted
+    SetTestStateSkipped
     exit 0
 fi
 

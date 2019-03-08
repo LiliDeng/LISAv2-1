@@ -64,7 +64,7 @@ declare -a LEGACY_NET_INTERFACES
 declare PACKAGE_BLOB_LOCATION="https://eosgpackages.blob.core.windows.net/testpackages/tools"
 
 # Link of sshpass RPM for SLES 12
-declare SLES_12_SSHPASS_LINK="https://download.opensuse.org/repositories/network/SLE_12_SP3/x86_64/sshpass-1.06-7.1.x86_64.rpm"
+declare SLES_12_SSHPASS_LINK="https://download.opensuse.org/repositories/network/SLE_12_SP3/x86_64/sshpass-1.06-7.4.x86_64.rpm"
 
 ######################################## Functions ########################################
 
@@ -2294,7 +2294,7 @@ function install_sshpass () {
 	which sshpass
 	if [ $? -ne 0 ]; then
 		echo "sshpass not installed\n Installing now..."
-		if [ $DISTRO_NAME == "sles" ] && [[ $DISTRO_VERSION =~ 12 ]]; then
+		if [ $DISTRO_NAME == "sles" ] && [[ $DISTRO_VERSION =~ 12 ]] || [[ $DISTRO_VERSION =~ 15 ]]; then
 			rpm -ivh $SLES_12_SSHPASS_LINK
 		else
 			install_package "sshpass"
@@ -2318,6 +2318,7 @@ function add_sles_benchmark_repo () {
 				return 1
 		esac
 		zypper addrepo $repo_url
+		zypper --no-gpg-checks refresh
 	else
 		echo "Unsupported distribution for add_sles_benchmark_repo"
 		return 1
@@ -2342,6 +2343,7 @@ function add_sles_network_utilities_repo () {
 				return 1
 		esac
 		zypper addrepo $repo_url
+		zypper --no-gpg-checks refresh
 	else
 		echo "Unsupported distribution for add_sles_network_utilities_repo"
 		return 1
