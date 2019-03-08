@@ -68,11 +68,8 @@ done
                 elif [[ "$tmp" =~ "SUSE Linux Enterprise Server 15" ]]; then
                     echo "SLES 15"
                     exitVal=0
-                elif [[ "$tmp" =~ "Reference Distro" ]]; then
-                    echo "OL"
-                    exitVal=0
                 else
-                    echo "Unknown"         
+                    echo "Unknown"
                 fi
         elif [ -e /usr/share/clear/version ]; then
                 tmp=$(cat /usr/share/clear/version)
